@@ -1,24 +1,14 @@
-# AI 赋能智能硬件创客训练营 · 课程仓库（Arduino CLI 版）
+# AI 赋能智能硬件创客训练营 · 课程仓库
 
 > 深圳大学 × 柴火创客学院 | 2026 春季
 
 ## 这是什么？
 
-这是课程开发仓库的 **Arduino CLI 版本**，使用学生已安装的 Arduino IDE 内置的 `arduino-cli` 进行编译和上传，**不需要额外安装 PlatformIO**。
+这是 AI 赋能智能硬件创客训练营的课程开发仓库。学生使用 AI CLI 工具（OpenCode 等）在本仓库中完成硬件编程项目。
 
-适用场景：
-- 学生已安装 Arduino IDE 2.x（L1 课程要求）
-- PlatformIO 工具链下载受网络限制
-- 希望零额外安装直接开始 Vibe Coding
+AI 工具启动后会自动读取 `CLAUDE.md`，获得完整的硬件平台信息和开发规范，从而能够根据你的需求描述直接生成可编译运行的代码。
 
-## 与 PlatformIO 版仓库的区别
-
-| 对比 | PlatformIO 版 (szu-ai-maker-2026) | Arduino CLI 版（本仓库） |
-|---|---|---|
-| 编译工具 | PlatformIO CLI（需额外安装） | Arduino IDE 内置 arduino-cli（已有） |
-| 项目结构 | `platformio.ini` + `src/main.cpp` | `文件夹名.ino`（Arduino 标准） |
-| 工具链 | 需要下载 PlatformIO packages | **复用 Arduino IDE 已下载的工具链** |
-| 命令 | `pio run -t upload` | `arduino-cli compile -u` |
+**你只需要安装过 Arduino IDE，不需要额外安装其他开发工具。**
 
 ## 快速开始
 
@@ -40,7 +30,7 @@ opencode
 
 ```
 szu-ai-arduino-2026/
-├── CLAUDE.md               # AI 上下文（硬件信息 + arduino-cli 用法）
+├── CLAUDE.md               # AI 上下文（硬件信息 + 开发规范）
 ├── hardware/               # 硬件参考文档
 │   └── grove-beginner-kit.md
 ├── examples/               # 已验证的示例项目
@@ -50,6 +40,20 @@ szu-ai-arduino-2026/
 ├── templates/              # 项目模板
 │   └── grove-project/
 └── students/               # 学生项目目录
+```
+
+## 硬件平台
+
+| 课次 | 设备 | 说明 |
+|:---:|---|---|
+| L1-L2 | Grove Beginner Kit | 11 模块一体板，Seeeduino Lotus 主控 |
+| L3-L4 | Wio Terminal | 带彩色屏幕的微控制器（待更新） |
+| L5-L6 | XIAO ESP32S3 Sense | 拇指大小，内置摄像头（待更新） |
+
+## 工作流
+
+```
+写 requirements.md  →  AI 读需求 + 生成代码  →  编译上传  →  验收  →  迭代
 ```
 
 ## 讲师
