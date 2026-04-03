@@ -1,0 +1,14 @@
+# Arduino build
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# AI tools
+.claude/
+.opencode/
+
+# OS
+.DS_Store
+Thumbs.db
