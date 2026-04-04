@@ -186,6 +186,96 @@ void loop() {
 }
 ```
 
+---
+
+## 硬件平台 2：Wio Terminal
+
+当用户要求使用 Wio Terminal 时，使用以下配置。详细参考见 `hardware/wio-terminal.md`。
+
+### 硬件概要
+
+- MCU: ATSAMD51P19 (ARM Cortex-M4F, 120MHz)
+- 屏幕: 2.4 寸 320×240 TFT LCD (ILI9341), 使用 TFT_eSPI 库（Wio Terminal 板卡包已内置）
+- 输入: 3 个按钮 (WIO_KEY_A/B/C) + 5 向摇杆 (WIO_5S_UP/DOWN/LEFT/RIGHT/PRESS)
+- 内置传感器: 加速度计 LIS3DHTR (I2C, **使用 Wire1**)、麦克风 (WIO_MIC)、光传感器 (WIO_LIGHT)
+- 输出: 蜂鸣器 (WIO_BUZZER)、LED (LED_BUILTIN)、LCD 屏幕
+- 无线: WiFi + BLE (RTL8720DN)
+- 接口: 2× Grove 端口、USB-C、microSD 卡槽
+
+### 编译上传命令
+
+```bash
+# 安装板卡包（首次使用需要）
+arduino-cli core install Seeeduino:samd
+
+# 编译并上传
+arduino-cli compile -b Seeeduino:samd:seeed_wio_terminal -u -p <端口> ./
+
+# 串口监视器（Wio Terminal 用 115200 波特率）
+arduino-cli monitor -p <端口> -c baudrate=115200
+```
+
+### 关键引脚
+
+| 功能 | 宏名称 | 用法 |
+|------|--------|------|
+| 按钮 A (右) | `WIO_KEY_A` | `pinMode(WIO_KEY_A, INPUT_PULLUP)`, 按下为 `LOW` |
+| 按钮 B (中) | `WIO_KEY_B` | 同上 |
+| 按钮 C (左) | `WIO_KEY_C` | 同上 |
+| 摇杆上/下/左/右/按 | `WIO_5S_UP` 等 | 同上 |
+| 蜂鸣器 | `WIO_BUZZER` | `analogWrite(WIO_BUZZER, 128)` |
+| 麦克风 | `WIO_MIC` | `analogRead(WIO_MIC)` |
+| 光传感器 | `WIO_LIGHT` | `analogRead(WIO_LIGHT)` |
+| 板载 LED | `LED_BUILTIN` | `digitalWrite(LED_BUILTIN, HIGH)` |
+
+### LCD 屏幕快速参考
+
+```cpp
+#include "TFT_eSPI.h"
+TFT_eSPI tft;
+
+void setup() {
+    tft.begin();
+    tft.setRotation(3);  // 横屏，按钮在上
+    digitalWrite(LCD_BACKLIGHT, HIGH);
+    tft.fillScreen(TFT_BLACK);
+    tft.setTextColor(TFT_WHITE);
+    tft.drawString("Hello!", 10, 10, 4);  // font size 1-7
+}
+```
+
+颜色常量: `TFT_BLACK`, `TFT_WHITE`, `TFT_RED`, `TFT_GREEN`, `TFT_BLUE`, `TFT_YELLOW`, `TFT_CYAN`, `TFT_MAGENTA`, `TFT_ORANGE`
+
+自定义颜色: `tft.color565(r, g, b)`
+
+### 加速度计（注意：使用 Wire1）
+
+```cpp
+#include <LIS3DHTR.h>
+LIS3DHTR<TwoWire> lis;
+
+void setup() {
+    lis.begin(Wire1);  // 必须用 Wire1，不是 Wire
+    lis.setOutputDataRate(LIS3DHTR_DATARATE_25HZ);
+}
+
+void loop() {
+    float x = lis.getAccelerationX();
+    float y = lis.getAccelerationY();
+    float z = lis.getAccelerationZ();
+}
+```
+
+### Wio Terminal 注意事项
+
+- 串口波特率使用 `115200`（不是 Grove 的 9600）
+- 加速度计 LIS3DHTR 必须使用 `Wire1`（内部 I2C 总线），`Wire` 是给 Grove 外部设备的
+- 蜂鸣器是无源的，用 `analogWrite` 或手动 PWM 驱动
+- 上传失败时：快速拨动侧面开关两次进入 bootloader 模式（蓝色 LED 呼吸灯闪烁）
+- TFT_eSPI 库已内置于 Wio Terminal 板卡包中，不需要额外安装
+
+---
+
 ## 需求文档格式
 
-学生会在项目目录的 `requirements.md` 中用自然语言描述需求。格式参考 `templates/grove-project/requirements.md`。
+学生会在项目目录的 `requirements.md` 中用自然语言描述需求。格式参考 `templates/grove-project/requirements.md` 或 `templates/wio-terminal-project/requirements.md`。

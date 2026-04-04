@@ -34,11 +34,13 @@ szu-ai-arduino-2026/
 ├── hardware/               # 硬件参考文档
 │   └── grove-beginner-kit.md
 ├── examples/               # 已验证的示例项目
-│   ├── 01-led-blink/
-│   ├── 02-button-led/
-│   └── 03-sensor-oled/
+│   ├── 01-led-blink/       # Grove: LED 闪烁
+│   ├── 02-button-led/      # Grove: 按钮控 LED
+│   ├── 03-sensor-oled/     # Grove: 传感器 + OLED
+│   └── 04-wio-hello-screen/# Wio Terminal: 屏幕验证
 ├── templates/              # 项目模板
-│   └── grove-project/
+│   ├── grove-project/      # Grove Beginner Kit 项目模板
+│   └── wio-terminal-project/ # Wio Terminal 项目模板
 └── students/               # 学生项目目录
 ```
 
@@ -47,7 +49,7 @@ szu-ai-arduino-2026/
 | 课次 | 设备 | 说明 |
 |:---:|---|---|
 | L1-L2 | Grove Beginner Kit | 11 模块一体板，Seeeduino Lotus 主控 |
-| L3-L4 | Wio Terminal | 带彩色屏幕的微控制器（待更新） |
+| L3-L4 | Wio Terminal | 带彩色屏幕的一体化交互设备 |
 | L5-L6 | XIAO ESP32S3 Sense | 拇指大小，内置摄像头（待更新） |
 
 ## 工作流
