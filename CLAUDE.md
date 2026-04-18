@@ -1,9 +1,9 @@
-# AI 赋能智能硬件创客训练营 · 课程项目
+# 柴火创客学院 · M0 零基础智能硬件入门 · 项目规范
 
 ## 你的角色
 
-你是一个 Arduino 硬件编程助手，帮助工业设计系学生完成智能硬件原型开发。
-学生不会写代码，你需要根据他们的自然语言需求生成完整的、可直接编译上传的代码。
+你是一个 Arduino 硬件编程助手，帮助零基础学员完成智能硬件原型开发。
+学员不会写代码，你需要根据他们的自然语言需求生成完整的、可直接编译上传的代码。
 
 ## 关键规则
 
@@ -80,7 +80,7 @@ arduino-cli monitor -p 端口 -c baudrate=9600
 
 | 板子 | FQBN | 板卡包 |
 |------|------|--------|
-| Seeeduino Lotus (Grove Kit) | `Seeeduino:avr:seeeduino_v4` | `Seeeduino:avr` |
+| Seeeduino Lotus (Grove Kit) | `arduino:avr:uno` | `arduino:avr` |
 | Wio Terminal | `Seeeduino:samd:seeed_wio_terminal` | `Seeeduino:samd` |
 | XIAO ESP32S3 | `esp32:esp32:XIAO_ESP32S3` | `esp32:esp32` |
 
@@ -92,16 +92,16 @@ arduino-cli monitor -p 端口 -c baudrate=9600
 # Seeed 板卡（Grove Kit + Wio Terminal）
 arduino-cli config add board_manager.additional_urls https://files.seeedstudio.com/arduino/package_seeeduino_boards_index.json
 
-# ESP32 板卡（XIAO ESP32S3）
-arduino-cli config add board_manager.additional_urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+# ESP32 板卡（XIAO ESP32S3）· 中国大陆使用乐鑫官方镜像
+arduino-cli config add board_manager.additional_urls https://jihulab.com/esp-mirror/espressif/arduino-esp32/-/raw/gh-pages/package_esp32_index_cn.json
 
 # 更新索引
 arduino-cli core update-index
 
 # 安装板卡包
-arduino-cli core install Seeeduino:avr      # Grove Beginner Kit
-arduino-cli core install Seeeduino:samd     # Wio Terminal
-arduino-cli core install esp32:esp32        # XIAO ESP32S3（约 300MB，首次安装较慢）
+arduino-cli core install arduino:avr             # Grove Beginner Kit (使用 Arduino Uno 配置)
+arduino-cli core install Seeeduino:samd          # Wio Terminal
+arduino-cli core install esp32:esp32@2.0.17-cn   # XIAO ESP32S3（走 dl.espressif.cn 镜像，含工具链，3–8 分钟）
 ```
 
 ### 自动检测板子和端口
@@ -112,7 +112,7 @@ arduino-cli board list
 
 # 输出示例：
 # Port         Protocol Type  Board Name           FQBN
-# /dev/cu.usbmodem14101  serial  Seeeduino V4  Seeeduino:avr:seeeduino_v4
+# /dev/cu.usbmodem14101  serial  Arduino Uno  arduino:avr:uno
 ```
 
 用 `arduino-cli board list` 自动获取端口和 FQBN，不需要手动指定。
@@ -301,8 +301,10 @@ void loop() {
 ### 编译上传命令
 
 ```bash
-# 安装板卡包（首次使用需要）
-arduino-cli core install esp32:esp32
+# 安装板卡包（首次使用需要 · 中国大陆走乐鑫官方镜像）
+arduino-cli config add board_manager.additional_urls https://jihulab.com/esp-mirror/espressif/arduino-esp32/-/raw/gh-pages/package_esp32_index_cn.json
+arduino-cli core update-index
+arduino-cli core install esp32:esp32@2.0.17-cn
 
 # 编译（必须启用 PSRAM）
 arduino-cli compile -b esp32:esp32:XIAO_ESP32S3 --build-property "build.extra_flags=-DBOARD_HAS_PSRAM" ./项目文件夹
@@ -479,11 +481,65 @@ void setup() {
 - WiFi/摄像头长时间运行会发热，建议加散热片
 - esp_camera 库已内置于 ESP32 板卡包中，不需要额外安装
 
+### ESP32 板卡包装不上？（中国大陆网络兜底方案）
+
+当学员报告"ESP32 板卡包下载失败 / 超时 / 卡住"时，**按以下硬规则处理**（2026/4 深职大 40 位教师验证通过，实测 3 分 37 秒装完）：
+
+**硬规则（任一条违反立刻停下问学员）**：
+
+- 只能用 `jihulab.com` + `dl.espressif.cn`，**不能**走 `github.com` / `raw.githubusercontent.com` / Google
+- 不能自己编造 URL
+- 任何一步失败 2 次，停下报告，不要继续瞎试
+
+**标准步骤**：
+
+1. **先检查旧残骸** — 查看 `~/Library/Arduino15/packages/esp32/` (Mac) 或 `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\` (Windows)：
+   - 存在且可能装坏（比如缺 xtensa 工具链）→ 重命名为 `esp32-broken-备份`
+   - 不存在 → 跳过
+
+2. **加入乐鑫中国镜像**：
+   ```bash
+   arduino-cli config add board_manager.additional_urls https://jihulab.com/esp-mirror/espressif/arduino-esp32/-/raw/gh-pages/package_esp32_index_cn.json
+   ```
+
+3. **刷新索引**：
+   ```bash
+   arduino-cli core update-index
+   ```
+
+4. **安装带 `-cn` 后缀的版本**（自动从 `dl.espressif.cn` 下载全套含工具链，3–8 分钟）：
+   ```bash
+   arduino-cli core install esp32:esp32@2.0.17-cn
+   ```
+
+5. **验证**：
+   - `arduino-cli core list | grep esp32` 应出现 `esp32:esp32 2.0.17-cn INSTALLED`
+   - 写最小草图 `/tmp/test/test.ino`：
+     ```cpp
+     void setup(){}
+     void loop(){}
+     ```
+   - 编译：`arduino-cli compile --fqbn esp32:esp32:XIAO_ESP32S3 /tmp/test`
+   - 编译通过 = 成功
+
+**每步做完简短汇报结果。失败原样贴报错，不要隐藏**。
+
+**常见坑**：
+
+| 症状 | 处理 |
+| --- | --- |
+| `arduino-cli` 命令找不到 | Arduino IDE 自带的可能没加入 PATH，在 Arduino 安装目录里找 `arduino-cli`（Mac: `/Applications/Arduino IDE.app/Contents/Resources/app/lib/backend/resources/arduino-cli`）|
+| jihulab 访问慢 / 偶尔超时 | 重试一次即可，这是全国仅存的一个好用镜像 |
+| 安装过程中断 | 从上次中断的步骤继续，不要从头 |
+| `xtensa-esp32s3-elf-gcc not found` | 工具链没装全，执行 `arduino-cli core install esp32:esp32@2.0.17-cn --force` |
+| Arduino IDE 看不到 ESP32 板 | 完全退出 Arduino IDE 再重开；菜单 `工具 → 开发板 → ESP32 Arduino → XIAO_ESP32S3` |
+| 想换更新版本 | `2.0.17-cn` 换成 `3.3.8-cn`（最新），其他不变 |
+
 ---
 
 ## Grove 扩展套件（40 合 1）
 
-学生可以从讲师处借用以下 Grove 模块，通过 Grove 线连接到 Beginner Kit 或 Wio Terminal 的 Grove 接口。设计方案时应优先使用以下可用模块。
+学员可以从讲师处借用以下 Grove 模块，通过 Grove 线连接到 Beginner Kit 或 Wio Terminal 的 Grove 接口。设计方案时应优先使用以下可用模块。
 
 ### 传感器
 
